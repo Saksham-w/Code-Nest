@@ -13,51 +13,42 @@ const myX = document.querySelector("#twitter");
 const myPP = document.querySelector("#pp");
 
 fetch(profileUrl)
-  .then((rawData) => {
-    return rawData.json();
-  })
+  .then((rawData) => rawData.json())
   .then((data) => {
     myName.textContent = data.name;
     myFollowers.textContent = data.followers;
     myFollowing.textContent = data.following;
-    myLogin.textContent = data.login;
-    myLocation.textContent = data.location;
-    myBio.textContent = data.bio;
-    myEmail.textContent = data.email;
+    myLogin.textContent = `@${data.login}`;
+    myLocation.textContent = data.location || "Location not set";
+    myBio.textContent = data.bio || "No bio available";
+    myEmail.textContent = data.email || "No email provided";
     myPP.setAttribute("src", data.avatar_url);
-    myX.setAttribute("href", `https://x.com/${data.twitter_username}`);
+    if (data.twitter_username) {
+      myX.setAttribute("href", `https://x.com/${data.twitter_username}`);
+    }
   })
   .catch((e) => console.error("Error msg = ", e));
 
 fetch(reposUrl)
-  .then((rawArr) => {
-    return rawArr.json();
-  })
+  .then((rawArr) => rawArr.json())
   .then((arr) => {
-    arr.map((repo) => {
+    arr.forEach((repo, index) => {
       const singleRepo = document.createElement("a");
       singleRepo.setAttribute("href", repo.html_url);
       singleRepo.setAttribute("target", "_blank");
-      singleRepo.classList.add("singleRepo"); // css adding
+      singleRepo.classList.add("singleRepo");
+      singleRepo.style.animationDelay = `${index * 0.1}s`;
 
       const repoName = document.createElement("h2");
-      repoName.textContent = repo.name; //first repository ko thau ma API bata Github repo ko nam aauchha
+      repoName.textContent = repo.name;
       repoName.classList.add("repoName");
 
       const repoBio = document.createElement("p");
-      repoBio.textContent = repo?.description; //html ko desc ko satta ma API bata desc aauchha
+      repoBio.textContent = repo.description || "No description available";
       repoBio.classList.add("repoBio");
 
       const repoMade = document.createElement("p");
-      repoMade.innerHTML = `<strong>Made with: </strong>${repo.language}`
-      // const languageUrl = repo.languages_url;
-      // console.log(fetchLanguages(languageUrl))
-      // langArr.map((lang) => {
-        //  const span = document.createElement('span')
-        //  span.textContent=lang
-        //  repoMade.appendChild(span)
-        // console.log(lang)
-      // })
+      repoMade.innerHTML = `<strong>Made with:</strong> ${repo.language || "Not specified"}`;
       repoMade.classList.add("repoMade");
 
       const linker = document.createElement("div");
@@ -66,16 +57,14 @@ fetch(reposUrl)
       const star = document.createElement("div");
       star.innerHTML = '<i class="ri-star-s-fill"></i>';
       star.classList.add("star");
-      //
       const starClass = document.createElement("p");
       starClass.textContent = repo.stargazers_count;
       starClass.classList.add("starClass");
       star.appendChild(starClass);
 
       const watchers = document.createElement("div");
-      watchers.innerHTML = ' <i class="ri-eye-fill"></i>';
+      watchers.innerHTML = '<i class="ri-eye-fill"></i>';
       watchers.classList.add("watchers");
-
       const watchClass = document.createElement("p");
       watchClass.textContent = repo.watchers_count;
       watchClass.classList.add("watchClass");
@@ -84,16 +73,16 @@ fetch(reposUrl)
       const link = document.createElement("div");
       link.innerHTML = '<i class="ri-link"></i>';
       link.classList.add("link");
-      //
       const linkClass = document.createElement("a");
       linkClass.textContent = "View Repository";
       linkClass.setAttribute("href", repo.html_url);
       linkClass.setAttribute("target", "_blank");
+      linkClass.style.color = "white";
       link.appendChild(linkClass);
 
       linker.appendChild(star);
-      linker.appendChild(link);
       linker.appendChild(watchers);
+      linker.appendChild(link);
 
       singleRepo.appendChild(repoName);
       singleRepo.appendChild(repoBio);
@@ -104,16 +93,3 @@ fetch(reposUrl)
     });
   })
   .catch((error) => console.error("Error fetching repositories:", error));
-
-// function fetchLanguages(url) {
-//   const result = fetch(url)
-//     .then((raw) => {
-//       return raw.json();
-//     })
-//     .then((data) => {
-//      return data
-//     });
-//      result.then((x) => {
-//       console.log(x)
-//      })
-//   }
